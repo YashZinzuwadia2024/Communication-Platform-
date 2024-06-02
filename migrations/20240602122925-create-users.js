@@ -2,17 +2,35 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('messages', {
+    await queryInterface.createTable('users', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      content: {
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      email: {
         type: Sequelize.STRING,
         allowNull: false,
-        trim: true,
+        unique: true
+      },
+      password: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      pic: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
+      },
+      is_admin: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       },
       createdAt: {
         allowNull: false,
@@ -28,26 +46,8 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-    await queryInterface.addColumn("chats", "sender_id", {
-      type: Sequelize.INTEGER,
-      references: {
-        model: 'users',
-        key: 'id'
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL'
-    });
-    await queryInterface.addColumn("chats", "chat_id", {
-      type: Sequelize.INTEGER,
-      references: {
-        model: 'chats',
-        key: 'id'
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL'
-    });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('messages');
+    await queryInterface.dropTable('users');
   }
 };
