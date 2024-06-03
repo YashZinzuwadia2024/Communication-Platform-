@@ -2,23 +2,35 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('groups', {
+    await queryInterface.createTable('users', {
       id: {
         allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4
+        type: Sequelize.INTEGER
       },
-      group_name: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      group_description: {
-        type: Sequelize.TEXT,
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+      },
+      password: {
+        type: Sequelize.STRING,
         allowNull: false
       },
-      profile_path: {
-        type: Sequelize.STRING
+      pic: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
+      },
+      is_admin: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       },
       createdAt: {
         allowNull: false,
@@ -34,15 +46,8 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-    await queryInterface.addColumn("groups", "message_id", {
-      type: Sequelize.INTEGER,
-      references: {
-        model: "messages",
-        key: "id"
-      }
-    });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('groups');
+    await queryInterface.dropTable('users');
   }
 };

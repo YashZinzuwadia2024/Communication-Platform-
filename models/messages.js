@@ -5,14 +5,21 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class messages extends Model {
     static associate(models) {
-      messages.belongsTo(models.users, {
-        foreignKey: 'user_id'
+      messages.belongsToMany(models.users, { 
+        through: 'MessageReadBy', 
+        as: 'readBy', 
+        foreignKey: 'messageId' 
       });
-      messages.belongsTo(models.chats, {
-        foreignKey: 'message_id'
+      messages.belongsTo(models.users, { 
+        as: 'sender', 
+        foreignKey: 'senderId' 
       });
-      messages.belongsTo(models.groups, {
-        foreignKey: "message_id"
+      messages.belongsTo(models.chats, { 
+        as: 'chat', 
+        foreignKey: 'chatId' 
+      });
+      messages.hasMany(models.chats, { 
+        foreignKey: 'latestMessageId' 
       });
     }
   }
@@ -23,19 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.INTEGER
     },
-    chat_id: {
-      type: DataTypes.UUID,
-    },
-    group_id: {
-      type: DataTypes.UUID
-    },
-    type: {
-      type: DataTypes.ENUM('text','file'),
-      allowNull: false
-    },
     content: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      trim: true,
     }
   }, {
     sequelize: sequelize,

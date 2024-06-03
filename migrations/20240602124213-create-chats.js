@@ -2,20 +2,18 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('messages', {
+    await queryInterface.createTable('chats', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      type: {
-        type: Sequelize.ENUM('text','file'),
-        allowNull: false
+      chatName: {
+        type: Sequelize.STRING
       },
-      content: {
-        type: Sequelize.STRING,
-        allowNull: false
+      isGroupChat: {
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -31,25 +29,16 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-    await queryInterface.addColumn("messages", "chat_id", {
-      type: Sequelize.UUID,
+    await queryInterface.addColumn("chats", "latest_message_id", {
+      type: Sequelize.INTEGER,
       references: {
-        model: 'chats',
+        model: 'messages',
         key: 'id'
       },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL"
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL'
     });
-    await queryInterface.addColumn("messages", "group_id", {
-      type: Sequelize.UUID,
-      references: {
-        model: 'groups',
-        key: 'id'
-      },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL"
-    });
-    await queryInterface.addColumn("messages", "user_id", {
+    await queryInterface.addColumn("chats", "group_admin_id", {
       type: Sequelize.INTEGER,
       references: {
         model: 'users',
@@ -60,6 +49,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('messages');
+    await queryInterface.dropTable('chats');
   }
 };

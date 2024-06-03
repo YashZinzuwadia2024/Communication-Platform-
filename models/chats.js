@@ -5,20 +5,35 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class chats extends Model {
     static associate(models) {
-      chats.hasMany(models.messages, {
-        foreignKey: 'message_id'
+      chats.belongsToMany(models.users, { 
+          through: 'ChatUsers' 
+        }
+      );
+      chats.hasMany(models.messages, { 
+        foreignKey: 'chatId'
       });
-      chats.hasMany(models.user_chats, {
-        foreignKey: "chat_id"
+      chats.belongsTo(models.users, { 
+        as: 'groupAdmin', 
+        foreignKey: 'groupAdminId' 
+      });
+      chats.belongsTo(models.messages, { 
+        as: 'latestMessage', 
+        foreignKey: 'latestMessageId' 
       });
     }
   }
   chats.init({
     id: {
       allowNull: false,
+      autoIncrement: true,
       primaryKey: true,
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4
+      type: DataTypes.INTEGER
+    },
+    chatName: {
+      type: DataTypes.STRING
+    },
+    isGroupChat: {
+      type: DataTypes.BOOLEAN
     }
   }, {
     sequelize: sequelize,

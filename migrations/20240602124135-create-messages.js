@@ -2,12 +2,17 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('chats', {
+    await queryInterface.createTable('messages', {
       id: {
         allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: Sequelize.INTEGER
+      },
+      content: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        trim: true,
       },
       createdAt: {
         allowNull: false,
@@ -23,17 +28,26 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-    await queryInterface.addColumn("chats", "message_id", {
+    await queryInterface.addColumn("messages", "sender_id", {
       type: Sequelize.INTEGER,
       references: {
-        model: 'messages',
-        key: "id"
+        model: 'users',
+        key: 'id'
       },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL"
-    })
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL'
+    });
+    await queryInterface.addColumn("messages", "chat_id", {
+      type: Sequelize.INTEGER,
+      references: {
+        model: 'chats',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL'
+    });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('chats');
+    await queryInterface.dropTable('messages');
   }
 };

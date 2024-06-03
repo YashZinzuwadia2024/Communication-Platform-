@@ -4,50 +4,64 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class users extends Model {
+    async matchPassword(enteredPassword) {
+      return await bcrypt.compare(enteredPassword, this.password);
+    }
     static associate(models) {
-      users.hasMany(models.messages, {
-        foreignKey: 'user_id'
+      users.belongsToMany(models.chats, { 
+        through: 'ChatUsers' 
       });
-      users.hasMany(models.user_groups, {
-        foreignKey: 'user_id'
+      users.belongsToMany(models.messages, { 
+        through: 'MessageReadBy', 
+        as: 'readMessages', 
+        foreignKey: 'userId' 
       });
-      users.hasMany(models.user_chats, {
-        foreignKey: "user_id"
+      users.hasMany(models.messages, { 
+        foreignKey: 'senderId' 
+      });
+      users.hasMany(models.chats, { 
+        foreignKey: 'groupAdminId' 
       });
     }
   }
   users.init({
-    id: {
-      allowNull: false,
-      autoIncrement: true,
-      primaryKey: true,
-      type: DataTypes.INTEGER
-    },
-    first_name: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    last_name: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    contact_no: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        len: 10
-      }
     },
-    status: {
-      type: DataTypes.TEXT
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
     },
-    profile_path: {
-      type: DataTypes.STRING
-    }
-  }, {
-    sequelize: sequelize,
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    pic: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue:
+        "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+    },
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+  },
+  {
+    sequelize,
+    modelName: "users",
     timestamps: true,
-    modelName: 'users',
+    hooks: {
+      beforeSave: async (user) => {
+        if (user.changed("password")) {
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      },
+    },
     paranoid: true
   });
   return users;
